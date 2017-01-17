@@ -76,7 +76,9 @@ var getTokenResponse = function (query) {
         stripe_publishable_key: stripe_publishable_key
     };
 };
-
+/*
+curl https://connect.stripe.com/oauth/token    -d client_secret=sk_test_jrgxkq6t5HPGsIoLmfUwtcmM    -d code=ac_9vBGL2ILM9XLuVYLdGdLOcMmlpEGwQRZ -d grant_type=authorization_code
+*/
 StripeServer.retrieveCredential = function(credentialToken) {
     return Oauth.Oauth.retrieveCredential(credentialToken);
 };

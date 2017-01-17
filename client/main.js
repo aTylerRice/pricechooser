@@ -27,11 +27,12 @@ const routes = (
       <Route path="product/:productId" component={Product} />
       <Route path="my_campaigns" component={MyCampaigns} />
       <Route path="my_orders" component={MyOrders} />
-      <Route path="connect_stripe" component={ConnectStripe} />
+      <Route path="connect_stripe_account" component={ConnectStripe} />
     </Route>
   </Router>
 );
 
 Meteor.startup(() => {
+  Stripe.setPublishableKey('pk_test_rwWKks2MV5qcPwGPMziNVJeA');
   ReactDOM.render(routes,document.querySelector('.render-target'));
 });

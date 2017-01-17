@@ -13,17 +13,22 @@
     "masonry-layout": "^4.1.1",
     "meteor-node-stubs": "~0.2.0",
     "moment": "^2.17.1",
-    "react": "^15.4.1",
+    "react": "^15.4.2",
     "react-addons-pure-render-mixin": "^15.4.1",
+    "react-collapse": "^2.3.3",
+    "react-currency-input": "^1.1.1",
     "react-datetime": "^2.7.5",
     "react-dom": "^15.4.1",
     "react-dropzone": "^3.8.0",
+    "react-height": "^2.1.1",
+    "react-motion": "^0.4.7",
     "react-router": "^3.0.0",
     "react-rte": "^0.11.0",
     "react-slick": "^0.14.5",
     "react-summernote": "^1.0.5",
     "react-transitive-number": "^3.0.0",
     "s3urls": "^1.5.2",
-    "slick-carousel": "^1.6.0"
+    "slick-carousel": "^1.6.0",
+    "stripe": "^4.14.0"
   }
 }
