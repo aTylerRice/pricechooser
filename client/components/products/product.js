@@ -9,6 +9,7 @@ import Slider from 'react-slick';
 import Collapse from 'react-collapse';
 import CurrencyInput from 'react-currency-input';
 import PaymentDetails from './payment_details';
+import CountdownTimer from './countdown_timer';
 
 
 class Product extends Component {
@@ -237,47 +238,8 @@ var readyInterval = setInterval(function() {
         submitPriceButtonValue = "Change my price commitment";
       }
 
-      var timeCountdown = (
-        <h2>loading</h2>
-      );
-      /*var daysCountdown = null;
-      if(this.state.time.d!= ''){
-        daysCountdown = (
-          <span>
-          <TransitiveNumber>{this.state.time.d}</TransitiveNumber> days
-          </span>
-        );
-      }
-      var hoursCountdown = null;
-      if(this.state.time.h!= ''||this.state.time.d!=''){
-        daysCountdown = (
-          <span>
-          <TransitiveNumber>{this.state.time.d}</TransitiveNumber> days
-          </span>
-        );
-      }
-      var secondsCountdown = null;
-      if(this.state.time.s!=''){
-        secondsCountdown = (
-          <span>
-          <TransitiveNumber>{this.state.time.s}</TransitiveNumber> secs
-          </span>
-        );
-      }*/
-      if(this.state.time.h !=''||this.state.time.m!=''){
-        timeCountdown = (
-        <h2>
-        <TransitiveNumber>{this.state.time.d}</TransitiveNumber> days <TransitiveNumber>{this.state.time.h}</TransitiveNumber> hrs <TransitiveNumber>{this.state.time.m}</TransitiveNumber> mins <br/>to go
-        </h2>
-      );
-    }
-    if(this.state.time.s < 0 || this.state.time.d < 0 || this.state.time.h < 0 || this.state.time.m < 0){
-      timeCountdown = (
-        <h2>
-        ended
-        </h2>
-      );
-    }
+
+
     var listItemLastOrder = (<span></span>);
     if(this.props.last_order){
       listItemLastOrder = (
@@ -329,7 +291,7 @@ var readyInterval = setInterval(function() {
             <h2><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber> bought this</h2>
             </li>
             <li className="list-group-item">
-            {timeCountdown}
+            <h2><CountdownTimer endingDate={this.props.product.endingDate} /></h2>
             </li>
             {listItemLastOrder}
             <li className="list-group-item">
@@ -352,7 +314,7 @@ var readyInterval = setInterval(function() {
               </div>
               </form>
               <Collapse isOpened={this.state.paymentFormOpened}>
-              <br/>
+
               <PaymentDetails userPrice={userPrice} handleFormSubmit={this.handlePaymentFormSubmit.bind(this)} />
               </Collapse>
             </li>

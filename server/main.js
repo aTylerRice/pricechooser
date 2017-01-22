@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Products } from '../imports/collections/products';
 import { ProductOrders } from '../imports/collections/product_order';
+import { Shops } from '../imports/collections/shops';
 import {StripeCredentials} from '../imports/collections/stripe_credentials';
 import {Slingshot} from 'meteor/edgee:slingshot';
 import '../imports/slingshot_file_restrictions';
@@ -244,6 +245,13 @@ Meteor.startup(() => {
       return
     }
     return Products.find({_id:productId,ownerId: this.userId},{fields: {fulfillments:{$slice:1}}});
+  });
+
+  Meteor.publish('edit_shop',function(){
+    if(!this.userId){
+      return
+    }
+    return Shops.find({ownerId:this.userId}, {limit:1});
   });
 
   var sts = new AWS.STS(); // Using the AWS SDK to retrieve temporary credentials.

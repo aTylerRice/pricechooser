@@ -2,6 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import { ProductOrders } from './product_order';
 import moment from 'moment';
 import s3urls from 's3urls';
+export const AllowedProductCategories = ["art","comics","developer","ebooks", "games", "movies", "music", "photography", "other"];
 Meteor.methods({
   'products.downloads.insert': function(product,download_url){
     var result = s3urls.fromUrl(download_url);
@@ -29,18 +30,28 @@ Meteor.methods({
     if(!Meteor.userId()){
       return null;
     }
+    //var allowedCategories = ["ebooks", "games", "music", "developer", "movies", "photography", "art", "other"];
+
+    if(AllowedProductCategories.indexOf(product.category)<=-1){
+      throw new Meteor.Error('',
+      "Category must be ebooks, games, music, movies, developer, photography, art or other.");
+    }
     return Products.insert({
       createdAt: new Date(),
       ownerId: Meteor.userId(),
       title: product.title,
       description: product.description,
       body: product.body,
-      startPrice: parseFloat(product.startPrice),
+      price: product.price,
+      category: product.category,
+      newCategory: product.newCategory,
+      /*startPrice: parseFloat(product.startPrice),
       minimumPrice: parseFloat(product.minimumPrice),
       currentPrice: parseFloat(product.startPrice),
       priceFunction: product.priceFunction,
       startDate: new Date(product.startDate),
-      endingDate: new Date(product.endingDate),
+      endingDate: new Date(product.endingDate),*/
+      tags: product.tags,
       downloads: [],
       fulfillments: [],
       orders: [],

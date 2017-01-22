@@ -6,7 +6,7 @@ import { Link } from 'react-router';
 import ProductCard from './product_card';
 import Datetime from 'react-datetime';
 
-class MyCampaigns extends Component {
+class MyProducts extends Component {
 
   constructor(props) {
     super(props);
@@ -57,4 +57,4 @@ export default createContainer(() => {
 
 
   return { products: Products.find({ownerId:Meteor.userId()}).fetch()};
-}, MyCampaigns);
+}, MyProducts);

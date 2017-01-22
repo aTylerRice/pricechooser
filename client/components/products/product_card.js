@@ -6,48 +6,16 @@ import { Link } from 'react-router';
 import TransitiveNumber from 'react-transitive-number';
 import moment from 'moment';
 import Slider from 'react-slick';
+import CountdownTimer from './countdown_timer';
 
 
 class ProductCard extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {productId: props.product._id, price: props.product.currentPrice, time:{d:"",h:"",m:"",s:""}};
-    this.duration = 0;
-    this.countDown = this.countDown.bind(this);
-    this.timer = 0;
+    this.state = {productId: props.product._id, price: props.product.currentPrice};
     this.renderSlideshow = this.renderSlideshow.bind(this);
-    /*
-    var interval = 1000;
-    setInterval(function(){
-
-      this.setState({productCountdown: duration});
-    }, interval);*/
   }
-
-  componentDidMount(){
-
-    if(this.timer == 0){
-      this.timer = setInterval(this.countDown, 1000);
-    }
-    var currentTime = new Date();
-    var eventTime = this.props.product.endingDate;
-    var diffTime = (new Date(eventTime)) - currentTime;
-    this.duration = moment.duration(diffTime, 'milliseconds');
-  }
-
-  componentWillUnmount(){
-    if(this.timer != 0){
-      clearInterval(this.timer);
-    }
-  }
-
-  countDown(){
-
-    this.duration = moment.duration(this.duration - 1000, 'milliseconds');
-    this.setState({time:{d:this.duration.days(),h:this.duration.hours(),m:this.duration.minutes(),s:this.duration.seconds()}});
-  }
-
 
   handleBuyPriceChange(product, event){
     this.setState({price:event.target.value});
@@ -116,24 +84,13 @@ class ProductCard extends Component {
         <Link to={"/product/"+product._id}><img height="222" src={product.images[0].image_url} /></Link>
       );
     }
-    var countdownTimer = (
-      <span className="pull-left">
-
-      <TransitiveNumber>{this.state.time.d}</TransitiveNumber> days <TransitiveNumber>{this.state.time.h}</TransitiveNumber> hrs <TransitiveNumber>{this.state.time.m}</TransitiveNumber> mins <TransitiveNumber>{this.state.time.s}</TransitiveNumber> secs
-      </span>
-    );
-    if(this.state.time.s < 0 || this.state.time.d < 0 || this.state.time.h < 0 || this.state.time.m < 0){
-      countdownTimer = (
-        <span className="pull-left">
-        ended
-        </span>
-      );
-    }
       return (
         <div className="product-card-container col-xs-12 col-sm-6 col-md-4 col-lg-4" key={product._id}>
           <div className="product-card col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div className="">
-          {countdownTimer}
+            <span className="pull-left">
+              <CountdownTimer displayCampaignsEndsIn="none" endingDate={this.props.product.endingDate} />
+            </span>
             <span className="pull-right">
               <b><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber></b> bought this
             </span>

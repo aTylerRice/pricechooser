@@ -20,6 +20,9 @@ class Header extends Component {
         browserHistory.push('/');
       }}>Logout</a></li>
     );
+    this.listItemManageShop = (
+      <li><Link to="/manage_shop">Manage Shop</Link></li>
+    );
     this.listItemStartCampaign = (
       <li><Link to="/start_campaign">Start Campaign</Link></li>
     );
@@ -50,8 +53,11 @@ class Header extends Component {
             {this.props.currentUser ? this.listItemMyOrders : null}
             </ul>
             <ul className="nav navbar-nav navbar-right">
-              {this.props.currentUser ? this.listItemStartCampaign : null}
-              {this.props.currentUser ? this.listItemMyCampaigns : null}
+              {//this.props.currentUser ? this.listItemStartCampaign : null
+              }
+              {//this.props.currentUser ? this.listItemMyCampaigns : null
+              }
+              {this.props.currentUser ? this.listItemManageShop : null}
               {!this.props.currentUser ? this.listItemLogin : null}
               {!this.props.currentUser ? this.listItemSignup : null}
               {this.props.currentUser ? this.listItemLogout : null}
