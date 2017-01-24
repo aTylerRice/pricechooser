@@ -8,9 +8,7 @@ import Datetime from 'react-datetime';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 const sorts = [
-  {name:"Most Sold", field:"orderCount", direction:-1},
-  {name:"Just Started", field:"startDate", direction:-1},
-  {name:"Ending Soonest", field:"endingDate", direction:1}
+  {name:"Most Sold", field:"orderCount", direction:-1}
 
 
 ];
@@ -19,11 +17,13 @@ class ProductsList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {page:0,sort:sorts[2]};
+    this.state = {page:0,sort:sorts[0]};
     this.page = 0;
   }
 
   renderList(){
+    console.log("renderList");
+    console.log(this.props.products);
     return this.props.products.map(product => {
 
       return (
@@ -71,7 +71,7 @@ class ProductsList extends Component {
   render() {
     return (
       <div>
-      <div className="jumbotron">
+      {/*}<div className="jumbotron">
         <div className="container">
         <h2>Choose the price you&rsquo;re willing to pay on products you love.</h2>
         <h3><ol>
@@ -81,7 +81,7 @@ class ProductsList extends Component {
           <li><p>Recieve an email with the product you purchased.</p></li>
         </ol></h3>
         </div>
-      </div>
+      </div>*/}
       <div className="list-filter container">
 
       <h3>
@@ -113,12 +113,12 @@ class ProductsList extends Component {
   }
 }
 
-const sort = new ReactiveVar(sorts[2]);
+const sort = new ReactiveVar(sorts[0]);
 
 export default createContainer((props) => {
-  Meteor.subscribe('products',0,sort.get() ? sort.get().field : "endingDate",sort.get() ? sort.get().direction : 1);
+  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1);
   var sortParams = {};
-  sortParams[sort.get() ? sort.get().field : "endingDate"] = sort.get() ? sort.get().direction : 1;
+  sortParams[sort.get() ? sort.get().field : sorts[0].field] = sort.get() ? sort.get().direction : 1;
   var startingDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
 
   startingDate.setSeconds(0);

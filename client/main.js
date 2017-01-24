@@ -23,6 +23,7 @@ const routes = (
   <Router history={browserHistory}>
     <Route path="/" component={App}>
       <IndexRoute component={ProductsList} />
+      <Route path="products/:category" component={ProductsList} />
       <Route path="signup" component={CreateUser} />
       <Route path="login" component={LoginUser} />
       <Route path="create_first_product" component={CreateFirstProduct} />

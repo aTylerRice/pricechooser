@@ -35,7 +35,7 @@ export default class EditDownload extends Component {
   }
 
   generateUrl(){
-    Meteor.call('generateDownloadUrlForOwner',this.props.product._id,this.props.download, (error, result) => {
+    Meteor.call('generateDownloadUrl',this.props.product._id,this.props.download, (error, result) => {
       console.log(error);
       console.log(result);
       if(!error){
@@ -57,6 +57,7 @@ export default class EditDownload extends Component {
 
         <div className="input-group clearfix">
         <form onSubmit={this.handleSubmit.bind(this)}>
+        <label htmlFor="downloadTitle">Download Title</label>
         <input value={this.state.title} onChange={this.handleDownloadTitleChange.bind(this)} className="form-control" />
         <div className="input-group">
           <input className="btn btn-default" type="submit" value="Submit" />

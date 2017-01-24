@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+/*import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Products } from '../../../imports/collections/products';
 import { ProductOrders } from '../../../imports/collections/product_order';
@@ -10,7 +10,7 @@ import Collapse from 'react-collapse';
 import CurrencyInput from 'react-currency-input';
 import PaymentDetails from './payment_details';
 import CountdownTimer from './countdown_timer';
-import OrderDownload from './order_download';
+
 
 class Product extends Component {
 
@@ -21,7 +21,6 @@ class Product extends Component {
     this.duration = 0;
     this.countDown = this.countDown.bind(this);
     this.timer = 0;
-    this.payAmountAboveMinimumPrice = this.payAmountAboveMinimumPrice.bind(this);
 
   }
 
@@ -84,7 +83,7 @@ var readyInterval = setInterval(function() {
         clearInterval(readyInterval);
     }
 }, 250);
-*/
+
   }
 
   componentWillReceiveProps(nextProps){
@@ -114,15 +113,7 @@ var readyInterval = setInterval(function() {
 
   handleBuyPriceChange(price){
 
-    this.setState({price,displayPrice:price});
-    if(this.props.product.price >=1 && (parseFloat(price)<this.props.product.price)){
-      this.setState({userPriceError:'Your price must be higher than $'+this.props.product.price});
-      return;
-    }else if(parseFloat(price)<1){
-      this.setState({userPriceError:'Your price must be higher than $1.00. Or download for free. Sorry our credit card transaction fees are too high for prices lower than $1.'});
-      return;
-    }
-    this.setState({userPriceError:''});
+    this.setState({price});
   }
 
   handleSubmitPrice(product, event){
@@ -131,29 +122,20 @@ var readyInterval = setInterval(function() {
       this.setState({paymentFormOpened:false});
       return;
     }
-    if(this.props.product.price==0 && !this.state.price && !this.state.displayPrice){
-      this.setState({price:1,displayPrice:100});
-    }else if(this.state.price && this.props.product.price >=1 && (parseFloat(this.state.price)<this.props.product.price)){
-      this.setState({userPriceError:'Your price must be higher than $'+this.props.product.price});
-      return;
-    }else if(!this.state.price &&this.props.product.price==0 || this.state.price<1){
-      this.setState({userPriceError:'Your price must be higher than $1.00. Or download for free. Sorry our credit card transaction fees are too high for prices lower than $1.'});
+    if(this.state.price && this.state.price<this.props.product.minimumPrice){
+      this.setState({userPriceError:'Your price must be higher than $'+this.props.product.minimumPrice});
       return;
     }
-
     this.setState({paymentFormOpened:true});
-    if(!this.state.price){
-      this.setState({price:this.props.product.price});
+    if(!this.state.price || this.state.price < this.props.product.currentPrice){
+      this.setState({price:this.props.product.currentPrice});
     }
     /*var order = {price:this.state.price || this.props.product.currentPrice, productId: this.state.productId || this.props.product._id};
-    Meteor.call('product_orders.insert',order);*/
+    Meteor.call('product_orders.insert',order);
   }
 
   handlePaymentFormSubmit(cardDetails){
     console.log(cardDetails);
-    if(parseFloat(this.state.price)<1){
-      return false;
-    }
     return;
     var number = cardDetails.number;
     var exp_year = cardDetails.exp_year;
@@ -166,7 +148,7 @@ var readyInterval = setInterval(function() {
         exp_year
       }, function(status,response){
         if(status==200){
-          if(parseFloat(this.state.price)<1){
+          if(this.state.price<this.props.product.minimumPrice){
             return false;
           }
           var order = {stripe_token:response.id,price:this.state.price || this.props.product.currentPrice, productId: this.state.productId || this.props.product._id};
@@ -234,14 +216,6 @@ var readyInterval = setInterval(function() {
     $('#cvc').payment('formatCardCVC');
   }
 
-  payAmountAboveMinimumPrice(amountAbove){
-    console.log("amountAbove");
-    console.log(amountAbove);
-    console.log(parseFloat(this.props.product.price));
-    console.log(parseFloat(this.props.product.price)+amountAbove);
-    this.setState({displayPrice:(parseFloat(this.props.product.price)+amountAbove)*100,price:(parseFloat(this.props.product.price)+amountAbove)});
-
-  }
 
 
   render() {
@@ -252,25 +226,18 @@ var readyInterval = setInterval(function() {
       );
     }
 
-
-
     var product = this.props.product;
-      var userPrice = this.state.price || product.price;
-      if(userPrice==0){
-        userPrice = "1.00";
+      var userPrice = this.state.price || product.currentPrice;
+      if(product.currentPrice<this.state.price){
+        userPrice=product.currentPrice;
+      }
+      var progressBarPercent = 100*((product.startPrice - product.currentPrice)/(product.startPrice - product.minimumPrice));
+
+      var submitPriceButtonValue = "Commit to Paying $"+userPrice+" or less";
+      if(this.state.paymentFormOpened){
+        submitPriceButtonValue = "Change my price commitment";
       }
 
-      var downloadButtons = product.downloads.map(download => {
-        return (
-          <OrderDownload key={download.key} product={product} download={download} />
-        )
-      });
-      var downloads = (
-        <div>
-          <h5>Downloads</h5>
-          {downloadButtons}
-        </div>
-      );
 
 
     var listItemLastOrder = (<span></span>);
@@ -283,51 +250,6 @@ var readyInterval = setInterval(function() {
         </li>
       );
     }
-    var listItemNumberBought = null;
-    if(product.price>0){
-      listItemNumberBought = (
-        <li className="list-group-item">
-        <h2><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber> paid for this</h2>
-        </li>
-      );
-    }
-
-    var donationAmount = 0;
-    if(product.price==0){
-      donationAmount = Math.floor(((this.state.price - product.price-0.3-(this.state.price*0.029))*0.5)*100)/100;
-    }else {
-      donationAmount = Math.floor(((this.state.price - product.price)*0.5)*100)/100;
-    }
-    var donationAmountDiv = null;
-    if(donationAmount>0&&this.state.price>=1&&this.state.userPriceError==''){
-      donationAmountDiv = (
-        <h4>${donationAmount} will be donated to charity</h4>
-      );
-    }
-    var userPriceErrorDiv = null;
-    if(this.state.userPriceError!=''){
-      userPriceErrorDiv = (
-        <div className="alert alert-danger">
-        {this.state.userPriceError}
-        </div>
-      )
-    }
-    var submitPriceButtonValue = "Pay and Download";
-    if(this.state.paymentFormOpened){
-      submitPriceButtonValue = "Close Payment Details and Change Price";
-    }
-    var payDiv = (
-      <h4>
-        Pay a minimum price of ${product.price} USD
-      </h4>
-    );
-    if(product.price==0){
-      payDiv = (
-        <h4>
-          This product is free to download, but feel free to support the creator and donate some money to our monthly charity.
-        </h4>
-      )
-    }
       return (
         <div className="container" key={product._id}>
           <div className="text-center col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -336,67 +258,55 @@ var readyInterval = setInterval(function() {
           </h1>
 
           </div>
-          <div className="product col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <div className="product-card col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div className="row">
-          <div className="product-images col-xs-12 col-sm-12 col-md-5 col-lg-5">
-          <div className="product-slideshow">
+          <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div className="product-card-top">
+            <h2 className="text-green progress-desc">${product.startPrice}</h2>
+            <h2 className="text-green text-center progress-desc">${product.currentPrice}</h2>
+            <h2 className="text-green text-right progress-desc">${product.minimumPrice}</h2>
+            <div className="price-progress progress">
+
+
+
+                <div className="progress-bar progress-bar-success" role="progressbar" aria-valuenow={Math.trunc(progressBarPercent)} aria-valuemin="0" aria-valuemax="100" style={{width: (Math.trunc(progressBarPercent))+'%'}}>
+                  <span>&nbsp;</span>
+                </div>
+
+
+            </div>
+
+            </div>
+
+
+          </div>
+          <div className="product-images col-xs-12 col-sm-6 col-md-6 col-lg-6">
+
           {this.renderSlideshow()}
+
           </div>
-          {downloads}
-          </div>
-          <div className="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+          <div className="col-xs-12 col-sm-6 col-md-6 col-lg-6">
             <ul className="list-group">
-            {listItemNumberBought}
+            <li className="list-group-item">
+            <h2><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber> bought this</h2>
+            </li>
+            <li className="list-group-item">
+            <h2><CountdownTimer endingDate={this.props.product.endingDate} /></h2>
+            </li>
             {listItemLastOrder}
             <li className="list-group-item">
-              {payDiv}
+            <h4>
+              Choose any price between ${product.currentPrice} and ${product.minimumPrice} USD
+            </h4>
               <form onSubmit={this.handleSubmitPrice.bind(this, product)}>
-              {userPriceErrorDiv}
               <h4 className="progress-desc">
               Im willing to pay
               </h4>
               <div className="input-group">
                 {/*}<input className="form-control" type="text" value={this.state.price?this.state.price:''} onChange={this.handleBuyPriceChange.bind(this, product)} />
-                  */}
+                  }
                   <span className="input-group-addon">$</span>
-                  <CurrencyInput disabled={this.state.paymentFormOpened} className="form-control" value={this.state.displayPrice?this.state.displayPrice:userPrice} onChange={this.handleBuyPriceChange.bind(this)} />
-              </div>
-              {donationAmountDiv}
-              <br/>
-              <div className="input-group">
-                <h4>Support the creator and this months charity by paying a set amount above the minimum. 50% of any amount above the minimum gets donated to charity.</h4>
-                <div className="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                <button onClick={(event)=>{
-                  event.preventDefault();
-                  this.payAmountAboveMinimumPrice(1);
-                }} className="btn btn-success">
-                + $1.00
-                </button>
-                </div>
-                <div className="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                <button onClick={(event)=>{
-                  event.preventDefault();
-                  this.payAmountAboveMinimumPrice(2);
-                }} className="btn btn-success">
-                + $2.00
-                </button>
-                </div>
-                <div className="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                <button onClick={(event)=>{
-                  event.preventDefault();
-                  this.payAmountAboveMinimumPrice(5);
-                }} className="btn btn-success">
-                + $5.00
-                </button>
-                </div>
-                <div className="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-                <button onClick={(event)=>{
-                  event.preventDefault();
-                  this.payAmountAboveMinimumPrice(10);
-                }} className="btn btn-success">
-                + $10.00
-                </button>
-                </div>
+                  <CurrencyInput disabled={this.state.paymentFormOpened} className="form-control" value={this.state.price} onChange={this.handleBuyPriceChange.bind(this)} />
               </div>
               <br/>
               <div className="input-group">
@@ -405,7 +315,7 @@ var readyInterval = setInterval(function() {
               </form>
               <Collapse isOpened={this.state.paymentFormOpened}>
 
-              <PaymentDetails userPrice={userPrice} productPrice={product.price} handleFormSubmit={this.handlePaymentFormSubmit.bind(this)} />
+              <PaymentDetails userPrice={userPrice} handleFormSubmit={this.handlePaymentFormSubmit.bind(this)} />
               </Collapse>
             </li>
 
@@ -448,7 +358,7 @@ var readyInterval = setInterval(function() {
                   </div>
                 </div>
               </fieldset>
-            </form>*/}
+            </form>}
 
 
           </div>
@@ -471,3 +381,4 @@ export default createContainer((props) => {
   Meteor.subscribe('product',productId);
   return { product: Products.findOne({_id:productId}), last_order: ProductOrders.findOne({productId:productId},{sort: {createdAt: -1}, limit: 1}) };
 }, Product);
+*/

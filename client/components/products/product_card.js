@@ -14,35 +14,8 @@ class ProductCard extends Component {
   constructor(props) {
     super(props);
     this.state = {productId: props.product._id, price: props.product.currentPrice};
-    this.renderSlideshow = this.renderSlideshow.bind(this);
   }
 
-  handleBuyPriceChange(product, event){
-    this.setState({price:event.target.value});
-  }
-
-  handleSubmitPrice(product, event){
-    event.preventDefault();
-    console.log("handleSubmitPrice");
-    Meteor.call('product_orders.insert',this.state);
-  }
-
-  onProductRemove(product){
-    console.log("onProductRemove");
-    Meteor.call('products.remove', product);
-    //clearInterval(this.timer);
-  }
-
-  renderSlideshow(){
-    if(this.props.product.images){
-    return this.props.product.images.map(picture => {
-      return (
-        <div><img src={picture.image_url} /></div>
-      );
-    });
-  }
-  return (<div></div>);
-  }
 /*
   renderOrderList(){
     return this.props.product_orders.map(order => {
@@ -76,8 +49,6 @@ class ProductCard extends Component {
     var product = this.props.product;
       var userPrice = this.state.price;
 
-      var progressBarPercent = 100*((product.startPrice - product.currentPrice)/(product.startPrice - product.minimumPrice));
-
     var product_image = null;
     if(product.images && product.images.length>0){
       product_image = (
@@ -85,12 +56,9 @@ class ProductCard extends Component {
       );
     }
       return (
-        <div className="product-card-container col-xs-12 col-sm-6 col-md-4 col-lg-4" key={product._id}>
+        <div className="product-card-container col-xs-12 col-sm-6 col-md-3 col-lg-3" key={product._id}>
           <div className="product-card col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div className="">
-            <span className="pull-left">
-              <CountdownTimer displayCampaignsEndsIn="none" endingDate={this.props.product.endingDate} />
-            </span>
             <span className="pull-right">
               <b><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber></b> bought this
             </span>
@@ -106,20 +74,8 @@ class ProductCard extends Component {
             </h2>
 
           </div>
-          <div className="product-images col-xs-12 col-sm-12 col-md-12 col-lg-12">
-          <span className="progress-desc text-left">Started at ${product.startPrice}</span>
-          <span className="progress-desc text-center">Current ${product.currentPrice}</span>
-          <span className="progress-desc text-right">Minimum ${product.minimumPrice}</span>
-          <div className="price-progress progress">
+          <div className="product-card-images col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
-
-
-              <div className="progress-bar progress-bar-success" role="progressbar" aria-valuenow={Math.trunc(progressBarPercent)} aria-valuemin="0" aria-valuemax="100" style={{width: (Math.trunc(progressBarPercent))+'%'}}>
-                <span>&nbsp;</span>
-              </div>
-
-
-          </div>
 
           {product_image}
 

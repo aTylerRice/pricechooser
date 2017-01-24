@@ -12,7 +12,6 @@ class AddProductDownloads extends Component {
   constructor(props){
     super(props);
     this.onDrop = this.onDrop.bind(this);
-    this.onDropSpreadsheet = this.onDropSpreadsheet.bind(this);
   }
 
   onDrop(files, quality) {

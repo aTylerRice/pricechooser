@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Products } from '../imports/collections/products';
 import { ProductOrders } from '../imports/collections/product_order';
 import { Shops } from '../imports/collections/shops';
+import { DownloadAnalytics } from '../imports/collections/download_analytics';
 import {StripeCredentials} from '../imports/collections/stripe_credentials';
 import {Slingshot} from 'meteor/edgee:slingshot';
 import '../imports/slingshot_file_restrictions';
@@ -36,25 +37,15 @@ Meteor.startup(() => {
         productId: productOrder.productId,
         price: parseFloat(productOrder.price),
         ownerId: Meteor.userId(),
+        productOwnerId: product.ownerId,
         stripe_customer: customer
       };
-      insert = Products.update(productOrder.productId,{$push:{orders:order}});
+      insert = ProductOrders.insert(order);
 
 
       var orderCount = product.orderCount+1;
       Products.update(product._id,{$set:{orderCount}})
-      var parser = new Parser();
-      var expr = parser.parse(product.priceFunction);
-      oldPrice = parseFloat(productOrder.price);
-      if(oldPrice > product.currentPrice){
-        oldPrice = product.currentPrice;
-      }
-      var priceCount = Products.find({_id:product._id,orders:{$elemMatch:{price: {$gte:oldPrice}}}}).count();
-      var newPrice = expr.evaluate({x:priceCount});
-      newPrice = Math.round(newPrice * 100) / 100;
-      if(newPrice <= productOrder.price){
-        Products.update(product._id, { $set: { currentPrice:newPrice} });
-      }
+
       });
       return true;
     },
@@ -125,15 +116,21 @@ Meteor.startup(() => {
         }
       }
     },
-    'generateDownloadUrlForOwner': function(productId,download){
-      if(!Meteor.userId()){
+    'generateDownloadUrl': function(productId,download){
+
+      var product = Products.findOne({_id:productId},{fields:{price:1,downloads:1,ownerId:1}});
+      if(product.price>0&&!Meteor.userId()){
         throw new Meteor.Error(500,
         "You must be signed in to do this.");
 
       }
-      var product = Products.findOne({_id:productId,ownerId:Meteor.userId()});
-      console.log(product);
-      console.log(download);
+      if(product.price>0 && product.ownerId != Meteor.userId()){
+        var productOrder = ProductOrders.findOne({productId:productId,ownerId:Meteor.userId()});
+        if(!productOrder){
+          throw new Meteor.Error(500,
+          "You must purchase this product before downloading it.");
+        }
+      }
       if(!product){
         return null;
       }
@@ -153,35 +150,15 @@ Meteor.startup(() => {
       var myS3Account = new s3('AKIAJNHPQ3KGZRGI7GCQ', 'V6XkF9wyukghNG/YoLv8MgGi6rCM3eEJ0A0XVGq/');
       var url = myS3Account.readPolicy(download.key, download.bucket, 60);
       console.log(url);
-      return url;
-    },
-    'generateDownloadUrlForDownloadOwner': function(productId,download){
-      if(!Meteor.userId()){
-        throw new Meteor.Error(500,
-        "You must be signed in to do this.");
-
-      }
-      var product = Products.findOne({_id:productId,orders:{$elemMatch:{ownerId:Meteor.userId()}}});
-      console.log(product);
-      console.log(download);
-      if(!product){
-        return null;
-      }
-      var found = false;
-      product.downloads.every(function(d){
-        if(download.key == d.key && download.bucket == d.bucket ){
-          found = true;
-          return false;
-        }
-        return true;
-      });
-      if(!found){
-        return null;
-      }
-      var myS3Account = new s3('AKIAJNHPQ3KGZRGI7GCQ', 'V6XkF9wyukghNG/YoLv8MgGi6rCM3eEJ0A0XVGq/');
-      var url = myS3Account.readPolicy(download.key, download.bucket, 60);
+      DownloadAnalytics.insert({createdAt:new Date(),productId:productId, productOwnerId: product.ownerId})
       return url;
     }
+  });
+  Meteor.publish('product_order_analytics',function(){
+    return ProductOrders.find({productOwnerId:this.userId},{fields:{createdAt:1,productId:1}});
+  });
+  Meteor.publish('download_analytics',function(){
+    return DownloadAnalytics.find({productOwnerId:this.userId});
   });
   Meteor.publish('my_stripe_credentials',function(){
     if(!this.userId){
@@ -221,12 +198,8 @@ Meteor.startup(() => {
     var limit = 12;
     var sortParams = {};
     sortParams[sortField] = sortDirection;
-    var startingDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
 
-    startingDate.setSeconds(59);
-    startingDate.setHours(23);
-    startingDate.setMinutes(59);
-    return Products.find({startDate:{$lte:startingDate}},{limit:limit, skip: page*limit,sort: sortParams});
+    return Products.find({},{limit:limit, skip: page*limit,sort: sortParams});
   });
 
   Meteor.publish('product',function(productId){

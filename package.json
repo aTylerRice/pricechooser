@@ -8,6 +8,7 @@
     "aws-sdk": "^2.7.18",
     "babel-runtime": "6.18.0",
     "connect-route": "^0.1.5",
+    "dateformat": "^2.0.0",
     "expr-eval": "^1.0.0-rc.3",
     "jquery": "^2.2.4",
     "masonry-layout": "^4.1.1",
@@ -29,6 +30,7 @@
     "react-transitive-number": "^3.0.0",
     "s3urls": "^1.5.2",
     "slick-carousel": "^1.6.0",
-    "stripe": "^4.14.0"
+    "stripe": "^4.14.0",
+    "victory": "^0.15.0"
   }
 }

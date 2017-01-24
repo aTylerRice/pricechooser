@@ -5,6 +5,8 @@ import { Shops } from '../../../imports/collections/shops';
 import { Link, browserHistory } from 'react-router';
 import CreateShop from './create_shop';
 import MyProducts from '../products/my_products';
+import ShopAnalytics from './shop_analytics';
+import ConnectStripe from '../users/connect_stripe';
 
 class EditShop extends Component {
 
@@ -33,6 +35,9 @@ class EditShop extends Component {
         <MyProducts />
         </div>
       );
+      var analyticsTab = (
+        <ShopAnalytics />
+      );
     return (
       <div className="container">
       {/*<div className="container">
@@ -46,9 +51,17 @@ class EditShop extends Component {
             My Products
           </a>
         </li>
-
+        <li className={this.state.activeTab=="analytics"?"active":""} role="presentation">
+          <a href="#" onClick={()=>{this.setState({activeTab:"analytics"})}}>
+            Analytics
+          </a>
+        </li>
+        <div className="pull-right">
+        <Link to="/connect_stripe_account">Connect Stripe Account to Get Paid<br/>and to Publish Products</Link>
+        </div>
       </ul>
       {this.state.activeTab == "my_products"?myProductsTab:null}
+      {this.state.activeTab == "analytics"?analyticsTab:null}
       </div>
     );
     }

@@ -10,16 +10,18 @@ export default class OrderDownload extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {downloadUrl:''};
+    this.state = {downloadUrl:'',error:''};
     this.showDownloadButtonClicked = this.showDownloadButtonClicked.bind(this);
   }
 
   showDownloadButtonClicked(){
-    Meteor.call('generateDownloadUrlForDownloadOwner',this.props.product._id,this.props.download, (error, result) => {
-      console.log(error);
+    Meteor.call('generateDownloadUrl',this.props.product._id,this.props.download, (err, result) => {
+      console.log(err);
       console.log(result);
-      if(!error){
+      if(!err){
         this.setState({downloadUrl:result});
+      }else {
+        this.setState({error:err.reason});
       }
     });
   }
@@ -37,9 +39,19 @@ export default class OrderDownload extends Component {
       </button>
       </a>
     );
+    var alertError = null;
+    if(this.state.error!=''){
+      alertError= (
+        <div className="alert alert-danger">
+        {this.state.error}
+        </div>
+      );
+    }
     return (
       <li key={download.key} className="list-group-item">
       {download.title}
+      {alertError}
+
       <span className="pull-right">
         {showDownloadButton}
         {this.state.downloadUrl==''?null:downloadLink}

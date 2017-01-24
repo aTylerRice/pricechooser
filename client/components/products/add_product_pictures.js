@@ -90,7 +90,7 @@ class AddProductPictures extends Component {
       <Link to={"/product/"+this.props.params.productId}><button className="btn delete-btn btn-default">View</button></Link>
       </div>
       <div className="container">
-
+      <h3>Add Pictures of the Project</h3>
           <Dropzone className="picture-grid-image dropzone" onDrop={this.onDrop}>
             <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">Drop your images here or click to upload. Images will be uploaded and saved automatically.</div>
           </Dropzone>

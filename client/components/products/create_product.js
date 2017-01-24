@@ -13,8 +13,10 @@ export default class CreateProduct extends Component {
 
   constructor(props) {
     super(props);
-    this.state = props.product? props.product:{body: '', title: '',description: '', body: '', price:0 ,earnings:"It's free!",error:''}; //startPrice: 10, minimumPrice: 3, currentPrice: 10, priceFunction: '', startDate: new Date(), endingDate: new Date()};
+    this.state = props.product? props.product:{category:AllowedProductCategories[0],newCategory:'',body: '', title: '',description: '', price:0 ,earnings:"It's free!",error:''}; //startPrice: 10, minimumPrice: 3, currentPrice: 10, priceFunction: '', startDate: new Date(), endingDate: new Date()};
 
+    this.handleCategoryChange = this.handleCategoryChange.bind(this);
+    this.handleNewCategoryChange = this.handleNewCategoryChange.bind(this);
     this.handleTitleChange = this.handleTitleChange.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handlePriceChange = this.handlePriceChange.bind(this);
@@ -32,6 +34,13 @@ export default class CreateProduct extends Component {
     this.setState(nextProps.product);
   }*/
 
+  handleCategoryChange(event){
+    this.setState({category:event.target.value});
+  }
+
+  handleNewCategoryChange(event){
+    this.setState({newCategory:event.target.value});
+  }
 
   handleTitleChange(event){
     this.setState({title: event.target.value});
@@ -51,11 +60,8 @@ export default class CreateProduct extends Component {
       earnings = "It's free!";
     }else {
       var earned = 0;
-      if(priceChange < 10){
-        earned = priceChange - priceChange*0.05 - priceChange * 0.2 - 0.05;
-      }else {
-        earned = priceChange - priceChange*0.20 - priceChange*0.029 - 0.3;
-      }
+
+      earned = priceChange - priceChange*0.20 - priceChange*0.029 - 0.3;
       earned=Math.floor(earned*100)/100;
       earnings = "You would earn $"+earned+" when people pay the minimum price";
     }
@@ -87,6 +93,16 @@ export default class CreateProduct extends Component {
 */
   handleSubmit(event){
     event.preventDefault();
+    if(this.state.category == "other"){
+      if(!this.state.newCategory || this.state.newCategory==''){
+        this.setState({error:"You must enter a custom category if you chose other."})
+        return;
+      }
+    }
+    if(this.state.body==''||this.state.title==''||this.state.description==''){
+      this.setState({error:"All fields are required."});
+      return;
+    }
 
     if(this.props.product){
       Meteor.call('products.update',this.props.product._id,this.state, (err, result)=>{
@@ -141,6 +157,17 @@ export default class CreateProduct extends Component {
         </div>
       );
     }
+    var customCategoryInput = null;
+    if(this.state.category == "other"){
+      customCategoryInput = (
+        <div>
+        <label htmlFor="product-custom-category-input">Custom Category</label>
+        <div className="input-group">
+          <input type="text" value={this.state.newCategory} onChange={this.handleNewCategoryChange} className="form-control" />
+        </div>
+        </div>
+      );
+    }
     return (
       <div className="container">
       <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
@@ -149,10 +176,11 @@ export default class CreateProduct extends Component {
       <form onSubmit={this.handleSubmit}>
         <label htmlFor="product-category-input">Category</label>
         <div className="input-group">
-          <select className="form-control">
+          <select value={this.state.category} onChange={this.handleCategoryChange} className="form-control">
             {this.renderCategoryOptions()}
           </select>
         </div>
+        {customCategoryInput}
         <label htmlFor="product-title-input">Title</label>
         <div className="input-group">
           <input className="form-control" id="product-title-input" type="text" value={this.state.title} onChange={this.handleTitleChange} />

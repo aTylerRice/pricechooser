@@ -53,15 +53,23 @@ Meteor.methods({
       endingDate: new Date(product.endingDate),*/
       tags: product.tags,
       downloads: [],
-      fulfillments: [],
-      orders: [],
       orderCount: 0,
-      images:[]
+      images:[],
+      published: false
     });
   },
-  'products.update': function(productId,newProduct) {
-    console.log(newProduct.startDate);
-    Products.update(productId, { $set: { title: newProduct.title,description: newProduct.description, body: newProduct.body, startPrice: newProduct.startPrice, minimumPrice: newProduct.minimumPrice, priceFunction: newProduct.priceFunction, startDate: new Date(newProduct.startDate),endingDate: new Date(newProduct.endingDate) } });
+  'products.update': function(productId,product) {
+    console.log(product.startDate);
+    Products.update(productId,
+      { $set: {
+        title: product.title,
+        description: product.description,
+        body: product.body,
+        price: product.price,
+        category: product.category,
+        newCategory: product.newCategory,
+        tags: product.tags
+      } });
     return productId;
   },
   'products.remove': function(product) {

@@ -117,7 +117,7 @@ export default class PaymentDetails extends Component {
       </div>
       <div className="row">
       <div className="col-xs-12">
-      <button className="btn btn-success btn-lg btn-block" type="submit">Charge me ${this.props.userPrice} or less when this campaign ends</button>
+      <button className="btn btn-success btn-lg btn-block" type="submit">Pay ${this.props.userPrice} and Download</button>
       </div>
       </div>
 
