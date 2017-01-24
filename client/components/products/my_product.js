@@ -23,13 +23,24 @@ export default class MyProduct extends Component {
       areYouSureRemoveProduct = (
         <div>
         <h4>Are you sure you want to totally delete this product?</h4>
-        <button className="btn btn-default" onClick={()=>this.removeProduct()}>
-        no</button>
         <button className="btn btn-default" onClick={()=> this.onProductRemove()}>
         yes
-        </button>
+        </button>&nbsp;&nbsp;&nbsp;
+        <button className="btn btn-default" onClick={()=>this.removeProduct()}>
+        no</button>
         </div>
       )
+    }
+    var deleteButton = (
+      <button
+        value={product._id}
+        className="delete-btn btn btn-danger"
+        onClick={(product) => this.removeProduct()}>
+        delete
+      </button>
+    );
+    if(this.state.showAreYouSure){
+      deleteButton = null;
     }
     return (
       <li key={product._id} className="list-group-item col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -40,12 +51,7 @@ export default class MyProduct extends Component {
         <span className="pull-right">
         {areYouSureRemoveProduct}
         <br/>
-        <button
-          value={product._id}
-          className="delete-btn btn btn-danger"
-          onClick={(product) => this.removeProduct()}>
-          delete
-        </button>
+        {deleteButton}
         </span>
       </li>
     );
