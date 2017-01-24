@@ -48,7 +48,7 @@ class LoginUser extends Component {
           return (<div><Link to={"/signup"}>Signup instead</Link></div>);
           }
         })()}
-        <button onClick={this.handleLoginSubmit.bind(this)} type="submit" className="btn btn-default">Sign Up</button>
+        <button onClick={this.handleLoginSubmit.bind(this)} type="submit" className="btn btn-default">Login</button>
 
 
       </div>

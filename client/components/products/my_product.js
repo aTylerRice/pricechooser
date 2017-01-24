@@ -8,6 +8,10 @@ export default class MyProduct extends Component {
     this.state = {showAreYouSure:false};
   }
 
+  removeProduct(){
+    this.setState({showAreYouSure:!this.state.showAreYouSure});
+  }
+
   onProductRemove(){
     Meteor.call('products.remove', this.props.product);
   }
@@ -35,6 +39,7 @@ export default class MyProduct extends Component {
           &nbsp;&nbsp; <Link to={"/add_product_downloads/"+product._id}><button className="btn btn-default">Add/Remove Downloads</button></Link>
         <span className="pull-right">
         {areYouSureRemoveProduct}
+        <br/>
         <button
           value={product._id}
           className="delete-btn btn btn-danger"
