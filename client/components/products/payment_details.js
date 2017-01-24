@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link, browserHistory } from 'react-router';
+import { createContainer } from 'meteor/react-meteor-data';
 
-
-export default class PaymentDetails extends Component {
+class PaymentDetails extends Component {
 
   constructor(props) {
     super(props);
@@ -46,6 +46,34 @@ export default class PaymentDetails extends Component {
   }
 
   render(){
+
+    if(!this.props.userId){
+      return (
+        <div className="payment-panel panel panel-default credit-card-box">
+        <div className="panel-heading display-table" >
+        <div className="row display-tr" >
+          <h3 className="panel-title display-td" >Please login or signup before purchasing.</h3>
+          <div className="display-td" >
+
+          </div>
+        </div>
+        </div>
+        <div className="panel-body">
+        <Link to="/login">
+        <button className="btn btn-default">
+        Login
+        </button>
+        </Link>
+        <br/><br/>
+        <Link to="/signup">
+        <button className="btn btn-default">
+        Sign up
+        </button>
+        </Link>
+        </div>
+        </div>
+      )
+    }
     return (
       <div className="payment-panel panel panel-default credit-card-box">
       <div className="panel-heading display-table" >
@@ -127,3 +155,7 @@ export default class PaymentDetails extends Component {
     );
   }
 }
+
+export default createContainer((props) => {
+  return { userId:Meteor.userId()};
+}, PaymentDetails);

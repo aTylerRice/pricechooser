@@ -22,7 +22,12 @@ class LoginUser extends Component {
 
         }else {
           this.setState({error: '',errorEmailExists: false});
-          browserHistory.push("/");
+          const location = this.props.location
+          if (location.state && location.state.nextPathname) {
+            browserHistory.push(location.state.nextPathname)
+          }else{
+            browserHistory.push("/");
+          }
         }
     });
   }

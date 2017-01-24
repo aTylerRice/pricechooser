@@ -132,7 +132,7 @@ export default class CreateProduct extends Component {
   renderCategoryOptions(){
     return AllowedProductCategories.map(category=>{
       return (
-        <option>
+        <option key={category}>
           {category}
         </option>
       );

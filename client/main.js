@@ -19,6 +19,15 @@ import MyOrders from './components/products/my_orders';
 import Product from './components/products/product';
 import ConnectStripe from './components/users/connect_stripe';
 
+function requireAuth(nextState, replace) {
+  if (!Meteor.userId()){
+  replace({
+    pathname: '/login',
+    state: { nextPathname: nextState.location.pathname }
+  });
+}
+}
+
 const routes = (
   <Router history={browserHistory}>
     <Route path="/" component={App}>
@@ -26,18 +35,18 @@ const routes = (
       <Route path="products/:category" component={ProductsList} />
       <Route path="signup" component={CreateUser} />
       <Route path="login" component={LoginUser} />
-      <Route path="create_first_product" component={CreateFirstProduct} />
-      <Route path="create_product" component={CreateProduct} />
-      <Route path="edit_product/:productId" component={EditProduct} />
-      <Route path="add_product_pictures/:productId" component={AddProductPictures} />
-      <Route path="add_product_downloads/:productId" component={AddProductDownloads} />
-      <Route path="create_shop" component={CreateShop} />
-      <Route path="manage_shop" component={ManageShop} />
-      <Route path="edit_shop/:shopId" component={EditShop} />
-      <Route path="add_shop_cover_image" component={AddShopCoverImage} />
+      <Route path="create_first_product" component={CreateFirstProduct} onEnter={requireAuth} />
+      <Route path="create_product" component={CreateProduct} onEnter={requireAuth} />
+      <Route path="edit_product/:productId" component={EditProduct} onEnter={requireAuth} />
+      <Route path="add_product_pictures/:productId" component={AddProductPictures} onEnter={requireAuth} />
+      <Route path="add_product_downloads/:productId" component={AddProductDownloads} onEnter={requireAuth} />
+      <Route path="create_shop" component={CreateShop} onEnter={requireAuth} />
+      <Route path="manage_shop" component={ManageShop} onEnter={requireAuth} />
+      <Route path="edit_shop/:shopId" component={EditShop} onEnter={requireAuth} />
+      <Route path="add_shop_cover_image" component={AddShopCoverImage} onEnter={requireAuth} />
       <Route path="product/:productId" component={Product} />
-      <Route path="my_orders" component={MyOrders} />
-      <Route path="connect_stripe_account" component={ConnectStripe} />
+      <Route path="my_orders" component={MyOrders} onEnter={requireAuth} />
+      <Route path="connect_stripe_account" component={ConnectStripe} onEnter={requireAuth} />
     </Route>
   </Router>
 );
