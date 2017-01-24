@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
-import { Products } from '../../../imports/collections/products';
+import { Products, AllowedProductCategories } from '../../../imports/collections/products';
 import { ProductOrders } from '../../../imports/collections/product_order';
 import { Link } from 'react-router';
 import ProductCard from './product_card';
@@ -17,7 +17,8 @@ class ProductsList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {page:0,sort:sorts[0]};
+    var category = this.props.params.category||'';
+    this.state = {page:0,sort:sorts[0], categories:[category]};
     this.page = 0;
   }
 
@@ -116,7 +117,8 @@ class ProductsList extends Component {
 const sort = new ReactiveVar(sorts[0]);
 
 export default createContainer((props) => {
-  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1);
+  var category = props.params.category||'';
+  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1,[category]);
   var sortParams = {};
   sortParams[sort.get() ? sort.get().field : sorts[0].field] = sort.get() ? sort.get().direction : 1;
   var startingDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")

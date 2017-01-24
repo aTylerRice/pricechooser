@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Link, browserHistory } from 'react-router';
+import { AllowedProductCategories } from '../../imports/collections/products';
 
 class Header extends Component {
 
@@ -34,6 +35,14 @@ class Header extends Component {
     );
   }
 
+  renderCategories(){
+    return AllowedProductCategories.map((category)=>{
+      return (
+        <li key={category} ><Link to={"/products/"+category}>{category}</Link></li>
+      );
+    });
+  }
+
   render(){
     return (
       <div>
@@ -50,13 +59,16 @@ class Header extends Component {
           </div>
           <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul className=" nav navbar-nav">
-            {this.props.currentUser ? this.listItemMyOrders : null}
+            {this.renderCategories()}
+
+
             </ul>
             <ul className="nav navbar-nav navbar-right">
               {//this.props.currentUser ? this.listItemStartCampaign : null
               }
               {//this.props.currentUser ? this.listItemMyCampaigns : null
               }
+              {this.props.currentUser ? this.listItemMyOrders : null}
               {this.props.currentUser ? this.listItemManageShop : null}
               {!this.props.currentUser ? this.listItemLogin : null}
               {!this.props.currentUser ? this.listItemSignup : null}
