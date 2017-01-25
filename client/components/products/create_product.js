@@ -14,7 +14,20 @@ export default class CreateProduct extends Component {
   constructor(props) {
     super(props);
     this.state = props.product? props.product:{category:AllowedProductCategories[0],newCategory:'',body: '', title: '',description: '', price:0 ,earnings:"It's free!",error:''}; //startPrice: 10, minimumPrice: 3, currentPrice: 10, priceFunction: '', startDate: new Date(), endingDate: new Date()};
+    this.state.error='';
+    if(props.product){
+      var priceChange=props.product.price;
+      if(priceChange == 0){
+        earnings = "It's free!";
+      }else {
+        var earned = 0;
 
+        earned = priceChange - priceChange*0.20 - priceChange*0.029 - 0.3;
+        earned=Math.floor(earned*100)/100;
+        earnings = "You would earn $"+earned+" when people pay the minimum price";
+      }
+      this.state.earnings = earnings;
+    }
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleNewCategoryChange = this.handleNewCategoryChange.bind(this);
     this.handleTitleChange = this.handleTitleChange.bind(this);
@@ -174,22 +187,22 @@ export default class CreateProduct extends Component {
       {alertInfoDiv}
       {alertDangerDiv}
       <form onSubmit={this.handleSubmit}>
-        <label htmlFor="product-category-input">Category</label>
+        <label htmlFor="product-category-input">Category - Your product will be listed under this category when users click on those links at the top of the page. If your product does not fit any of these then select other and create a new category.</label>
         <div className="input-group">
           <select value={this.state.category} onChange={this.handleCategoryChange} className="form-control">
             {this.renderCategoryOptions()}
           </select>
         </div>
         {customCategoryInput}
-        <label htmlFor="product-title-input">Title</label>
+        <label htmlFor="product-title-input">Title - What is your product called? What is the name of your product?</label>
         <div className="input-group">
           <input className="form-control" id="product-title-input" type="text" value={this.state.title} onChange={this.handleTitleChange} />
         </div>
-        <label htmlFor="product-desc-input">Description</label>
+        <label htmlFor="product-desc-input">Description - This is below your image that you upload in the next step on all search result pages and main category pages, but not on your main product page.</label>
         <div className="input-group">
           <textarea className="form-control" id="product-desc-input" value={this.state.description} onChange={this.handleDescriptionChange} />
         </div>
-        <label>Body</label>
+        <label>Body - This is a long version of your description and will be shown on your products page but not in search results.</label>
         <ReactSummernote
         value={this.state.body}
         options={{
@@ -207,7 +220,7 @@ export default class CreateProduct extends Component {
         }}
         onChange={this.handleEditorBodyChange.bind(this)}
       />
-      <label htmlFor="product-price-input">Minimum Price</label>
+      <label htmlFor="product-price-input">Minimum Price - What is the minimum price you want people to pay for your product? Can be free.</label>
       <div className="alert alert-info">{this.state.earnings}</div>
       <div className="input-group">
 
@@ -240,7 +253,7 @@ export default class CreateProduct extends Component {
         */}
         <br/>
         <div className="input-group">
-          <input className="btn btn-default" type="submit" value="Submit" />
+          <input className="btn btn-default" type="submit" value={this.props.product?"Publish Changes":"Submit Draft and Add Images"} />
         </div>
       </form>
       </div>
