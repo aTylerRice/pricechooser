@@ -42,7 +42,7 @@ Meteor.methods({
       title: product.title,
       description: product.description,
       body: product.body,
-      price: product.price,
+      price: parseFloat(product.price),
       category: product.category,
       newCategory: product.newCategory,
       /*startPrice: parseFloat(product.startPrice),
@@ -65,7 +65,7 @@ Meteor.methods({
         title: product.title,
         description: product.description,
         body: product.body,
-        price: product.price,
+        price: parseFloat(product.price),
         category: product.category,
         newCategory: product.newCategory,
         tags: product.tags

@@ -193,12 +193,14 @@ Meteor.startup(() => {
     return Products.find({orders:{$elemMatch:{ownerId:this.userId}}},{fields:{title:1,description:1,downloads:1,fulfillments:{$elemMatch:{ownerId:this.userId}}}});
   });
   // code to run on server at startup
-  Meteor.publish('products',function(page, sortField, sortDirection, categories) {
+  Meteor.publish('products',function(page, sortField, sortDirection, categories, priceRange) {
     var limit = 12;
     var sortParams = {};
     sortParams[sortField] = sortDirection;
+    if(priceRange[1]>=100)
+      priceRange[1]=20000;
 
-    return Products.find({$or:[{category:{$in:categories}},{newCategory:{$in:categories}}]},{limit:limit, skip: page*limit,sort: sortParams});
+    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},$or:[{category:{$in:categories}},{newCategory:{$in:categories}}]},{limit:limit, skip: page*limit,sort: sortParams});
   });
 
   Meteor.publish('product',function(productId){
