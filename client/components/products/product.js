@@ -359,7 +359,7 @@ var readyInterval = setInterval(function() {
                 {/*}<input className="form-control" type="text" value={this.state.price?this.state.price:''} onChange={this.handleBuyPriceChange.bind(this, product)} />
                   */}
                   <span className="input-group-addon">$</span>
-                  <CurrencyInput disabled={this.state.paymentFormOpened} className="form-control" value={this.state.displayPrice?this.state.displayPrice:userPrice} onChange={this.handleBuyPriceChange.bind(this)} />
+                  <CurrencyInput disabled={this.state.paymentFormOpened} className="form-control" value={this.state.displayPrice?this.state.displayPrice:userPrice*100} onChange={this.handleBuyPriceChange.bind(this)} />
               </div>
               {donationAmountDiv}
               <br/>
