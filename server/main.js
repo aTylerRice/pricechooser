@@ -211,8 +211,10 @@ Meteor.startup(() => {
     if(priceRange[1]>=100){
       priceRange[1]=20000;
     }
-
-    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},"tags.text":{$all:tags}},{limit:limit, skip: page*limit,sort: sortParams});
+    if(tags.length>0 && tags[0]!=''){
+      return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},"tags.text":{$all:tags}},{limit:limit, skip: page*limit,sort: sortParams});
+    }
+    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]}},{limit:limit, skip: page*limit,sort: sortParams});
   });
 
   Meteor.publish('product',function(productId){
