@@ -3,6 +3,16 @@ import { ProductOrders } from './product_order';
 import moment from 'moment';
 import s3urls from 's3urls';
 export const AllowedProductCategories = ["art","comics","developer","ebooks", "games", "movies", "music", "photography", "other"];
+
+function slugify(text)
+{
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
 Meteor.methods({
   'products.downloads.insert': function(product,download_url){
     var result = s3urls.fromUrl(download_url);
@@ -31,11 +41,10 @@ Meteor.methods({
       return null;
     }
     //var allowedCategories = ["ebooks", "games", "music", "developer", "movies", "photography", "art", "other"];
-
-    if(AllowedProductCategories.indexOf(product.category)<=-1){
-      throw new Meteor.Error('',
-      "Category must be ebooks, games, music, movies, developer, photography, art or other.");
-    }
+    var tags = [];
+    product.tags.forEach((tag)=>{
+      tags.push({id:tag.id,text:slugify(tag.text)});
+    });
     return Products.insert({
       createdAt: new Date(),
       ownerId: Meteor.userId(),
@@ -43,15 +52,13 @@ Meteor.methods({
       description: product.description,
       body: product.body,
       price: parseFloat(product.price),
-      category: product.category,
-      newCategory: product.newCategory,
       /*startPrice: parseFloat(product.startPrice),
       minimumPrice: parseFloat(product.minimumPrice),
       currentPrice: parseFloat(product.startPrice),
       priceFunction: product.priceFunction,
       startDate: new Date(product.startDate),
       endingDate: new Date(product.endingDate),*/
-      tags: product.tags,
+      tags: tags,
       downloads: [],
       orderCount: 0,
       images:[],
@@ -59,7 +66,10 @@ Meteor.methods({
     });
   },
   'products.update': function(productId,product) {
-    console.log(product.startDate);
+    var tags = [];
+    product.tags.forEach((tag)=>{
+      tags.push({id:tag.id,text:slugify(tag.text)});
+    });
     Products.update(productId,
       { $set: {
         title: product.title,
@@ -68,7 +78,7 @@ Meteor.methods({
         price: parseFloat(product.price),
         category: product.category,
         newCategory: product.newCategory,
-        tags: product.tags
+        tags: tags
       } });
     return productId;
   },

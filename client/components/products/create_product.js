@@ -8,13 +8,17 @@ import RichTextEditor from 'react-rte';
 import ReactSummernote from 'react-summernote';
 import 'react-summernote/dist/react-summernote.css';
 import CurrencyInput from 'react-currency-input';
+import { WithContext as ReactTags } from 'react-tag-input';
 
 export default class CreateProduct extends Component {
 
   constructor(props) {
     super(props);
-    this.state = props.product? props.product:{category:AllowedProductCategories[0],newCategory:'',body: '', title: '',description: '', price:0 ,earnings:"It's free!",error:''}; //startPrice: 10, minimumPrice: 3, currentPrice: 10, priceFunction: '', startDate: new Date(), endingDate: new Date()};
+    this.state = props.product? props.product:{category:AllowedProductCategories[0],newCategory:'',body: '', title: '',description: '', price:0 ,earnings:"It's free!",error:'',tags: []}; //startPrice: 10, minimumPrice: 3, currentPrice: 10, priceFunction: '', startDate: new Date(), endingDate: new Date()};
     this.state.error='';
+    if(!this.state.tags){
+      this.state.tags = [];
+    }
     if(props.product){
       var priceChange=props.product.price;
       if(priceChange == 0){
@@ -38,6 +42,8 @@ export default class CreateProduct extends Component {
     this.handleMinimumPriceChange = this.handleMinimumPriceChange.bind(this);
     this.handleStartDateChange = this.handleStartDateChange.bind(this);
     this.handleEndingDateChange = this.handleEndingDateChange.bind(this);*/
+    this.handleTagAddition = this.handleTagAddition.bind(this);
+    this.handleTagDelete = this.handleTagDelete.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
@@ -78,8 +84,6 @@ export default class CreateProduct extends Component {
       earned=Math.floor(earned*100)/100;
       earnings = "You would earn $"+earned+" when people pay the minimum price";
     }
-    console.log("earnings");
-    console.log(earnings);
     this.setState({price:priceChange,earnings:earnings});
   }
   /*
@@ -142,7 +146,7 @@ export default class CreateProduct extends Component {
     Meteor.call('products.remove', product);
   }
 
-  renderCategoryOptions(){
+  /*renderCategoryOptions(){
     return AllowedProductCategories.map(category=>{
       return (
         <option key={category}>
@@ -150,6 +154,32 @@ export default class CreateProduct extends Component {
         </option>
       );
     })
+  }*/
+
+  handleTagDelete(i) {
+        let tags = this.state.tags;
+        tags.splice(i, 1);
+        this.setState({tags: tags});
+    }
+  handleTagAddition(tag) {
+    tag = tag.toLowerCase();
+    let tags = this.state.tags;
+    if(tags.length >=10){
+      return;
+    }
+    var notFound = true;
+    tags.forEach((tagIter)=>{
+      if(tagIter.text == tag){
+        notFound = false;
+      }
+    })
+    if(notFound){
+    tags.push({
+            id: tags.length + 1,
+            text: tag
+        });
+    this.setState({tags: tags});
+  }
   }
 
   render(){
@@ -187,21 +217,26 @@ export default class CreateProduct extends Component {
       {alertInfoDiv}
       {alertDangerDiv}
       <form onSubmit={this.handleSubmit}>
-        <label htmlFor="product-category-input">Category - Your product will be listed under this category when users click on those links at the top of the page. If your product does not fit any of these then select other and create a new category.</label>
+        {/*}<label htmlFor="product-category-input">Category - Your product will be listed under this category when users click on those links at the top of the page. If your product does not fit any of these then select other and create a new category.</label>
         <div className="input-group">
           <select value={this.state.category} onChange={this.handleCategoryChange} className="form-control">
             {this.renderCategoryOptions()}
           </select>
         </div>
-        {customCategoryInput}
+        {customCategoryInput}*/
+/*suggestions={suggestions}*/
+      }
+
         <label htmlFor="product-title-input">Title - What is your product called? What is the name of your product?</label>
         <div className="input-group">
           <input className="form-control" id="product-title-input" type="text" value={this.state.title} onChange={this.handleTitleChange} />
         </div>
+        <br/>
         <label htmlFor="product-desc-input">Description - This is below your image that you upload in the next step on all search result pages and main category pages, but not on your main product page.</label>
         <div className="input-group">
           <textarea className="form-control" id="product-desc-input" value={this.state.description} onChange={this.handleDescriptionChange} />
         </div>
+        <br/>
         <label>Body - This is a long version of your description and will be shown on your products page but not in search results.</label>
         <ReactSummernote
         value={this.state.body}
@@ -225,10 +260,10 @@ export default class CreateProduct extends Component {
       <div className="input-group">
 
         <span className="input-group-addon">$</span>
-        <CurrencyInput className="form-control" value={this.state.price} onChange={this.handlePriceChange.bind(this)} />
+        <CurrencyInput className="form-control" value={this.state.price*100} onChange={this.handlePriceChange.bind(this)} />
 
       </div>
-
+      <br/>
       {/*}
         <label htmlFor="product-price-function-input">Price Function</label>
         <div className="input-group">
@@ -251,6 +286,10 @@ export default class CreateProduct extends Component {
         <Datetime value={this.state.endingDate} onChange={this.handleEndingDateChange} />
         </div>
         */}
+        <label>Add Tags - Add any keyword someone might search to find your product. Max of 10. Avoid tagging supported platforms since that is handled separately</label>
+        <ReactTags tags={this.state.tags}
+                    handleDelete={this.handleTagDelete}
+                    handleAddition={this.handleTagAddition} />
         <br/>
         <div className="input-group">
           <input className="btn btn-default" type="submit" value={this.props.product?"Publish Changes":"Submit Draft and Add Images"} />

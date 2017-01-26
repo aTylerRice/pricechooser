@@ -2,6 +2,17 @@ import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Link, browserHistory } from 'react-router';
 import { AllowedProductCategories } from '../../imports/collections/products';
+import {TagsCount} from '../../imports/collections/tags_count';
+
+function slugify(text)
+{
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
 
 class Header extends Component {
 
@@ -35,10 +46,10 @@ class Header extends Component {
     );
   }
 
-  renderCategories(){
-    return AllowedProductCategories.map((category)=>{
+  renderTopTags(){
+    return this.props.popular_tags.map((tag)=>{
       return (
-        <li key={category} ><Link to={"/products/"+category}>{category}</Link></li>
+        <li key={tag._id} ><Link to={"/products/"+slugify(tag._id)}>{tag._id}</Link></li>
       );
     });
   }
@@ -59,7 +70,7 @@ class Header extends Component {
           </div>
           <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul className=" nav navbar-nav">
-            {this.renderCategories()}
+            {this.renderTopTags()}
 
 
             </ul>
@@ -84,6 +95,6 @@ class Header extends Component {
 }
 
 export default createContainer(() => {
-
-  return { currentUser: Meteor.user() };
+  Meteor.subscribe('popular_tags');
+  return { currentUser: Meteor.user(), popular_tags:TagsCount.find({},{sort:{total:-1},limit:10}).fetch() };
 }, Header);

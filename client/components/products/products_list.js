@@ -53,8 +53,8 @@ class ProductsList extends Component {
 
   constructor(props) {
     super(props);
-    var category = this.props.params.category||'';
-    this.state = {page:0,sort:sorts[0], categories:[category], priceRangeFilter:defaultPriceRange};
+    var tag = this.props.params.tag||'';
+    this.state = {page:0,sort:sorts[0], tags:[tag], priceRangeFilter:defaultPriceRange};
     this.page = 0;
     this.onPriceRangeSliderChange = this.onPriceRangeSliderChange.bind(this);
   }
@@ -71,7 +71,7 @@ class ProductsList extends Component {
 
   handleLoadMore(){
     this.page += 1;
-    Meteor.subscribe('products',this.page,this.state.sort.field,this.state.sort.direction,this.state.priceRangeFilter);
+    Meteor.subscribe('products',this.page,this.state.sort.field,this.state.sort.direction,this.state.tags,this.state.priceRangeFilter);
   }
 
   handleSortChange(name, event){
@@ -82,7 +82,7 @@ class ProductsList extends Component {
         console.log(this.props);
         console.log(this.state);
         sort.set(sortIter);
-        Meteor.subscribe('products',0,sortIter.field,sortIter.direction,this.state.priceRangeFilter);
+        Meteor.subscribe('products',0,sortIter.field,sortIter.direction,this.state.tags,this.state.priceRangeFilter);
         return false;
       }
       return true;
@@ -91,7 +91,7 @@ class ProductsList extends Component {
 
   onPriceRangeSliderChange(value){
     this.setState({priceRangeFilter:value});
-    Meteor.subscribe('products',this.page,this.state.sort.field,this.state.sort.direction,value);
+    Meteor.subscribe('products',this.page,this.state.sort.field,this.state.sort.direction,this.state.tags,value);
   }
 
   renderSortMenu(){
@@ -133,6 +133,7 @@ class ProductsList extends Component {
         <h3>
         Sorted by
         </h3>
+
           <div className="btn-group">
 
           <button type="button" className="btn btn-lg btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -144,7 +145,9 @@ class ProductsList extends Component {
           </div>
         </div>
         <h3>Select Price Range</h3>
+        <div className="container col-xs-11 col-sm-11 col-md-11 col-lg-11">
         <Slider onChange={this.onPriceRangeSliderChange} range allowCross={false} defaultValue={this.state.priceRangeFilter} handle={<CustomPriceFilterHandle />} />
+        </div>
         </div>
         <div className="col-xs-12 col-sm-12 col-md-9 col-lg-9">
         {this.renderList()}
@@ -166,8 +169,8 @@ class ProductsList extends Component {
 
 
 export default createContainer((props) => {
-  var category = props.params.category||'';
-  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1,[category],defaultPriceRange);
+  var tag = props.params.tag||'';
+  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1,[tag],defaultPriceRange);
   var sortParams = {};
   sortParams[sort.get() ? sort.get().field : sorts[0].field] = sort.get() ? sort.get().direction : 1;
   var startingDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")

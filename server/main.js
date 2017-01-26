@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Products } from '../imports/collections/products';
+import {TagsCount} from '../imports/collections/tags_count';
 import { ProductOrders } from '../imports/collections/product_order';
 import { Shops } from '../imports/collections/shops';
 import { DownloadAnalytics } from '../imports/collections/download_analytics';
@@ -12,9 +13,16 @@ import s3 from 's3policy';
 import { WebApp } from 'meteor/webapp';
 import ConnectRoute from 'connect-route';
 import { HTTP } from 'meteor/http';
+import {Cron} from 'meteor/chfritz:easycron';
 var stripe = require('stripe')('sk_test_jrgxkq6t5HPGsIoLmfUwtcmM');
 
 Meteor.startup(() => {
+
+  var everyMinuteAggregateTagCounts = new Cron(()=> {
+      var tagTotals = Products.aggregate([{$project:{text:"$tags.text"}},{$unwind:"$text"},{$group:{_id:"$text",total:{"$sum":1}}}]);
+      TagsCount.remove({});
+      TagsCount.rawCollection().insert(tagTotals);
+}, {});
 
   Meteor.methods({
     'product_orders.insert': function(productOrder) {
@@ -154,6 +162,9 @@ Meteor.startup(() => {
       return url;
     }
   });
+  Meteor.publish('popular_tags',function(){
+    return TagsCount.find({},{sort:{total:-1},limit:10})
+  });
   Meteor.publish('product_order_analytics',function(){
     return ProductOrders.find({productOwnerId:this.userId},{fields:{createdAt:1,productId:1}});
   });
@@ -193,14 +204,15 @@ Meteor.startup(() => {
     return Products.find({orders:{$elemMatch:{ownerId:this.userId}}},{fields:{title:1,description:1,downloads:1,fulfillments:{$elemMatch:{ownerId:this.userId}}}});
   });
   // code to run on server at startup
-  Meteor.publish('products',function(page, sortField, sortDirection, categories, priceRange) {
+  Meteor.publish('products',function(page, sortField, sortDirection, tags, priceRange) {
     var limit = 12;
     var sortParams = {};
     sortParams[sortField] = sortDirection;
-    if(priceRange[1]>=100)
+    if(priceRange[1]>=100){
       priceRange[1]=20000;
+    }
 
-    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},$or:[{category:{$in:categories}},{newCategory:{$in:categories}}]},{limit:limit, skip: page*limit,sort: sortParams});
+    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},"tags.text":{$all:tags}},{limit:limit, skip: page*limit,sort: sortParams});
   });
 
   Meteor.publish('product',function(productId){

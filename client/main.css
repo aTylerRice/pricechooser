@@ -20,7 +20,6 @@ html,body{
 }
 
 .list-filter h3{
-  display:inline-block;
   margin-right:20px;
 }
 
@@ -36,6 +35,25 @@ html,body{
 
 .download-list li {
   margin:15px 0;
+}
+
+.ReactTags__tag{
+  padding:5px;
+  margin:5px;
+  background-color:#ebebeb;
+  border:1px solid #ccc;
+}
+
+.ReactTags__remove{
+  padding:3px;
+}
+
+.ReactTags__tagInput{
+  margin-top:10px;
+}
+
+.ReactTags__remove:hover{
+  cursor:pointer;
 }
 
 .product-card {

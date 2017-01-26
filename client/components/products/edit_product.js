@@ -10,8 +10,6 @@ class EditProduct extends Component {
     super(props);
   }
   render(){
-    console.log("edit product render");
-    console.log(this.props.product);
     if(!this.props.product){
       return (
         <div className="container">Loading</div>
