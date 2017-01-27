@@ -15,7 +15,7 @@ const sorts = [
   {name:"Price: Lowest to Highest", field:"price", direction:1}
 ];
 
-const defaultPriceRange = [0,20];
+const defaultPriceRange = new ReactiveVar([0,20]);
 
 const sort = new ReactiveVar(sorts[0]);
 
@@ -54,7 +54,7 @@ class ProductsList extends Component {
   constructor(props) {
     super(props);
     var tag = this.props.params.tag||'';
-    this.state = {page:0,sort:sorts[0], tags:[tag], priceRangeFilter:defaultPriceRange};
+    this.state = {page:0,sort:sorts[0], tags:[tag], priceRangeFilter:defaultPriceRange.get()};
     this.page = 0;
     this.onPriceRangeSliderChange = this.onPriceRangeSliderChange.bind(this);
   }
@@ -90,6 +90,7 @@ class ProductsList extends Component {
   }
 
   onPriceRangeSliderChange(value){
+    defaultPriceRange.set(value);
     this.setState({priceRangeFilter:value});
     Meteor.subscribe('products',this.page,this.state.sort.field,this.state.sort.direction,this.state.tags,value);
   }
@@ -170,7 +171,7 @@ class ProductsList extends Component {
 
 export default createContainer((props) => {
   var tag = props.params.tag||'';
-  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1,[tag],defaultPriceRange);
+  Meteor.subscribe('products',0,sort.get() ? sort.get().field : sorts[0].field,sort.get() ? sort.get().direction : 1,[tag],defaultPriceRange.get());
   var sortParams = {};
   sortParams[sort.get() ? sort.get().field : sorts[0].field] = sort.get() ? sort.get().direction : 1;
   var startingDate = new Date(); // this is the starting date that looks like ISODate("2014-10-03T04:00:00.188Z")
@@ -178,5 +179,6 @@ export default createContainer((props) => {
   startingDate.setSeconds(0);
   startingDate.setHours(0);
   startingDate.setMinutes(0);
-  return { sort: sort.get(), products: Products.find({},{sort: sortParams}).fetch()};
+  console.log(defaultPriceRange.get());
+  return { sort: sort.get(), products: Products.find({price:{$gte:defaultPriceRange.get()[0]},price:{$lte:defaultPriceRange.get()[1]}},{sort: sortParams}).fetch()};
 }, ProductsList);

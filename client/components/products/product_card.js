@@ -59,6 +59,9 @@ class ProductCard extends Component {
         <div className="product-card-container col-xs-12 col-sm-6 col-md-3 col-lg-3" key={product._id}>
           <div className="product-card col-xs-12 col-sm-12 col-md-12 col-lg-12">
           <div className="">
+            <span className="pull-left product-card-price">
+            ${product.price}
+            </span>
             <span className="pull-right">
               <b><TransitiveNumber>{this.props.product.orderCount}</TransitiveNumber></b> bought this
             </span>
