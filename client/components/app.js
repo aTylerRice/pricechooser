@@ -3,7 +3,7 @@ import Header from './header';
 export default (props) => {
   return (
     <div>
-    <Header />
+    <Header category={props.params.category} />
     <div className="container-fluid">
 
     {props.children}

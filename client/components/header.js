@@ -3,6 +3,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { Link, browserHistory } from 'react-router';
 import { AllowedProductCategories } from '../../imports/collections/products';
 import {TagsCount} from '../../imports/collections/tags_count';
+import {Categories,StartingCategories} from '../../imports/collections/categories';
 
 function slugify(text)
 {
@@ -46,15 +47,56 @@ class Header extends Component {
     );
   }
 
-  renderTopTags(){
-    return this.props.popular_tags.map((tag)=>{
+  renderTopCategories(){
+    return AllowedProductCategories.map((category)=>{
       return (
-        <li key={tag._id} ><Link to={"/products/"+slugify(tag._id)}>{tag._id}</Link></li>
+        <li key={category} ><Link to={"/products/"+slugify(category)}>{category}</Link></li>
       );
     });
   }
 
+  renderCategory(category, level){
+    if(!category.children||category.children.length==0 || level >= 1){
+    return (
+      <li key={category.slug}><Link to={"/products/"+category.slug}>{category.name}</Link></li>
+    )
+    }
+    return (
+      <li key={category.slug} className="dropdown">
+      <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{category.name}</a>
+      <ul className="dropdown-menu">
+        {category.children.map(category=>{
+          return this.renderCategory(category,level+1);
+        })}
+      </ul>
+      </li>
+    )
+  }
+
+  renderTopLevelCategories(){
+    return StartingCategories.map((category)=>{
+
+      return this.renderCategory(category,0)
+    });
+  }
+
   render(){
+    var subNav = null;
+    /*
+  if(this.props.sub_categories && this.props.sub_categories.length>0){
+    console.log(this.props.sub_categories[0]);
+    subNav = (<nav className="navbar navbar-default">
+    <h5>Sub Categories</h5>
+      <div className="container-fluid">
+        <ul className=" nav navbar-nav">
+          {this.props.sub_categories.map(category=>{
+            return this.renderCategory(category,0);
+          })}
+        </ul>
+      </div>
+    </nav>
+  );;
+}*/
     return (
       <div>
       <nav className="navbar navbar-default">
@@ -70,8 +112,8 @@ class Header extends Component {
           </div>
           <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul className=" nav navbar-nav">
-            {this.renderTopTags()}
-
+            {this.renderTopCategories()}
+            {/*this.renderTopLevelCategories()*/}
 
             </ul>
             <ul className="nav navbar-nav navbar-right">
@@ -88,13 +130,13 @@ class Header extends Component {
           </div>
         </div>
       </nav>
+      {subNav}
       </div>
     );
   }
 
 }
 
-export default createContainer(() => {
-  Meteor.subscribe('popular_tags');
-  return { currentUser: Meteor.user(), popular_tags:TagsCount.find({},{sort:{total:-1},limit:10}).fetch() };
+export default createContainer((props) => {
+  return { currentUser: Meteor.user()};
 }, Header);

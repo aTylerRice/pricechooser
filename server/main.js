@@ -5,6 +5,7 @@ import { ProductOrders } from '../imports/collections/product_order';
 import { Shops } from '../imports/collections/shops';
 import { DownloadAnalytics } from '../imports/collections/download_analytics';
 import {StripeCredentials} from '../imports/collections/stripe_credentials';
+import {Categories, StartingCategories} from '../imports/collections/categories';
 import {Slingshot} from 'meteor/edgee:slingshot';
 import '../imports/slingshot_file_restrictions';
 import AWS from 'aws-sdk';
@@ -14,8 +15,47 @@ import { WebApp } from 'meteor/webapp';
 import ConnectRoute from 'connect-route';
 import { HTTP } from 'meteor/http';
 import {Cron} from 'meteor/chfritz:easycron';
-var stripe = require('stripe')('sk_test_jrgxkq6t5HPGsIoLmfUwtcmM');
+var stripe = require('stripe')('secrete key here');
+Meteor.startup(() => {
 
+    if(Categories.find({}).count()==0){
+    StartingCategories.forEach((category)=>{
+      Categories.insert({
+        createdAt:new Date(),
+        name:category.name,
+        parentSlug:null,
+        slug:category.slug,
+        numberOfProducts:0
+      });
+      category.children.forEach((category2)=>{
+        Categories.insert({
+          createdAt:new Date(),
+          name:category2.name,
+          parentSlug:category.slug,
+          slug:category2.slug,
+          numberOfProducts:0
+        });
+        category2.children.forEach((category3)=>{
+          Categories.insert({
+            createdAt:new Date(),
+            name:category3.name,
+            parentSlug:category2.slug,
+            slug:category3.slug,
+            numberOfProducts:0
+          });
+          category3.children.forEach((category4)=>{
+            Categories.insert({
+              createdAt:new Date(),
+              name:category4.name,
+              parentSlug:category3.slug,
+              slug:category4.slug,
+              numberOfProducts:0
+            });
+          })
+        })
+      })
+    })}
+});
 Meteor.startup(() => {
 
   var everyMinuteAggregateTagCounts = new Cron(()=> {
@@ -162,8 +202,11 @@ Meteor.startup(() => {
       return url;
     }
   });
+  Meteor.publish('sub_categories',function(categorySlug){
+    return Categories.find({parentSlug:categorySlug});
+  });
   Meteor.publish('popular_tags',function(){
-    return TagsCount.find({},{sort:{total:-1},limit:10})
+    return TagsCount.find({},{sort:{total:-1},limit:50})
   });
   Meteor.publish('product_order_analytics',function(){
     return ProductOrders.find({productOwnerId:this.userId},{fields:{createdAt:1,productId:1}});
@@ -204,7 +247,7 @@ Meteor.startup(() => {
     return Products.find({orders:{$elemMatch:{ownerId:this.userId}}},{fields:{title:1,description:1,downloads:1,fulfillments:{$elemMatch:{ownerId:this.userId}}}});
   });
   // code to run on server at startup
-  Meteor.publish('products',function(page, sortField, sortDirection, tags, priceRange) {
+  Meteor.publish('products',function(page, sortField, sortDirection, tags, priceRange,category) {
     var limit = 12;
     var sortParams = {};
     sortParams[sortField] = sortDirection;
@@ -212,9 +255,17 @@ Meteor.startup(() => {
       priceRange[1]=20000;
     }
     if(tags.length>0 && tags[0]!=''){
-      return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},"tags.text":{$all:tags}},{limit:limit, skip: page*limit,sort: sortParams});
+      var findJson = {price:{$gte:priceRange[0]},price:{$lte:priceRange[1]},"tags.text":{$all:tags}};
+      if(category!=''){
+        findJson.category = category;
+      }
+      return Products.find(findJson,{limit:limit, skip: page*limit,sort: sortParams});
     }
-    return Products.find({price:{$gte:priceRange[0]},price:{$lte:priceRange[1]}},{limit:limit, skip: page*limit,sort: sortParams});
+    var findJson = {price:{$gte:priceRange[0]},price:{$lte:priceRange[1]}};
+    if(category!=''){
+      findJson.category = category;
+    }
+    return Products.find(findJson,{limit:limit, skip: page*limit,sort: sortParams});
   });
 
   Meteor.publish('product',function(productId){

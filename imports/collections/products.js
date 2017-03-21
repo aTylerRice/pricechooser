@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import { ProductOrders } from './product_order';
 import moment from 'moment';
 import s3urls from 's3urls';
-export const AllowedProductCategories = ["art","comics","developer","ebooks", "games", "movies", "music", "photography", "other"];
+export const AllowedProductCategories = ["comics","creative","ebooks", "games", "movies", "other"];
 
 function slugify(text)
 {
@@ -52,6 +52,8 @@ Meteor.methods({
       description: product.description,
       body: product.body,
       price: parseFloat(product.price),
+      category:product.category,
+      newCategory:products.newCategory,
       /*startPrice: parseFloat(product.startPrice),
       minimumPrice: parseFloat(product.minimumPrice),
       currentPrice: parseFloat(product.startPrice),

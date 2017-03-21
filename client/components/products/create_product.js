@@ -146,7 +146,7 @@ export default class CreateProduct extends Component {
     Meteor.call('products.remove', product);
   }
 
-  /*renderCategoryOptions(){
+  renderCategoryOptions(){
     return AllowedProductCategories.map(category=>{
       return (
         <option key={category}>
@@ -154,7 +154,7 @@ export default class CreateProduct extends Component {
         </option>
       );
     })
-  }*/
+  }
 
   handleTagDelete(i) {
         let tags = this.state.tags;
@@ -217,15 +217,14 @@ export default class CreateProduct extends Component {
       {alertInfoDiv}
       {alertDangerDiv}
       <form onSubmit={this.handleSubmit}>
-        {/*}<label htmlFor="product-category-input">Category - Your product will be listed under this category when users click on those links at the top of the page. If your product does not fit any of these then select other and create a new category.</label>
+        <label htmlFor="product-category-input">Category - Your product will be listed under this category when users click on those links at the top of the page. If your product does not fit any of these then select other and create a new category.</label>
         <div className="input-group">
           <select value={this.state.category} onChange={this.handleCategoryChange} className="form-control">
             {this.renderCategoryOptions()}
           </select>
         </div>
-        {customCategoryInput}*/
-/*suggestions={suggestions}*/
-      }
+        {customCategoryInput}
+
 
         <label htmlFor="product-title-input">Title - What is your product called? What is the name of your product?</label>
         <div className="input-group">
