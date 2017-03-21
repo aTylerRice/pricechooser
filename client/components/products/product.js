@@ -25,68 +25,6 @@ class Product extends Component {
 
   }
 
-  componentDidMount(){
-/*
-/* Form validation using Stripe client-side validation helpers
-$.validator.addMethod("cardNumber", function(value, element) {
-    return this.optional(element) || );
-
-jQuery.validator.addMethod("cardExpiry", function(value, element) {
-    /* Parsing month/year uses jQuery.payment library
-    value = $.payment.cardExpiryVal(value);
-    return this.optional(element) || Stripe.card.validateExpiry(value.month, value.year);
-}, "Invalid expiration date.");
-
-jQuery.validator.addMethod("cardCVC", function(value, element) {
-    return this.optional(element) || Stripe.card.validateCVC(value);
-}, "Invalid CVC.");
-
-validator = $form.validate({
-    rules: {
-        cardNumber: {
-            required: true,
-            cardNumber: true
-        },
-        cardExpiry: {
-            required: true,
-            cardExpiry: true
-        },
-        cardCVC: {
-            required: true,
-            cardCVC: true
-        }
-    },
-    highlight: function(element) {
-        $(element).closest('.form-control').removeClass('success').addClass('error');
-    },
-    unhighlight: function(element) {
-        $(element).closest('.form-control').removeClass('error').addClass('success');
-    },
-    errorPlacement: function(error, element) {
-        $(element).closest('.form-group').append(error);
-    }
-});
-
-paymentFormReady = function() {
-    if ($form.find('[name=cardNumber]').hasClass("success") &&
-        $form.find('[name=cardExpiry]').hasClass("success") &&
-        $form.find('[name=cardCVC]').val().length > 1) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-$form.find('[type=submit]').prop('disabled', true);
-var readyInterval = setInterval(function() {
-    if (paymentFormReady()) {
-        $form.find('[type=submit]').prop('disabled', false);
-        clearInterval(readyInterval);
-    }
-}, 250);
-*/
-  }
-
   componentWillReceiveProps(nextProps){
 
     if(this.timer == 0){
@@ -180,7 +118,6 @@ var readyInterval = setInterval(function() {
 
   onProductRemove(product){
     Meteor.call('products.remove', product);
-    //clearInterval(this.timer);
   }
 
   renderSlideshow(){
@@ -356,8 +293,6 @@ var readyInterval = setInterval(function() {
               Im willing to pay
               </h4>
               <div className="input-group">
-                {/*}<input className="form-control" type="text" value={this.state.price?this.state.price:''} onChange={this.handleBuyPriceChange.bind(this, product)} />
-                  */}
                   <span className="input-group-addon">$</span>
                   <CurrencyInput disabled={this.state.paymentFormOpened} className="form-control" value={this.state.displayPrice?this.state.displayPrice:userPrice*100} onChange={this.handleBuyPriceChange.bind(this)} />
               </div>
@@ -410,45 +345,6 @@ var readyInterval = setInterval(function() {
             </li>
 
             </ul>
-
-
-          </div>
-          <div id="buy-form-container" className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            {/*}<form className="form-horizontal" role="form">
-              <fieldset>
-                <legend>Payment</legend>
-                <div className="form-group">
-                  <label className="col-sm-3 control-label" htmlhtmlFor="card-number">Card Number</label>
-                  <div className="col-sm-9">
-                    <input ref="number" onChange={this.onChangeCardNumber.bind(this)} type="text" className="form-control" name="card-number" id="cardNumber" placeholder="Debit/Credit Card Number" />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="col-sm-3 control-label" htmlhtmlFor="expiry-month">Expiration Date</label>
-                  <div className="col-sm-9">
-                    <div className="row">
-                      <div className="col-xs-3">
-                        <input ref="exp_month" type="text" className="form-control" name="exp-month" id="exp_month" placeholder="MM" />
-                      </div>
-                      <div className="col-xs-3">
-                        <input ref="exp_year" type="text" className="form-control" name="exp-year" id="exp_year" placeholder="YYYY" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="col-sm-3 control-label" htmlhtmlFor="cvc">Card CVC</label>
-                  <div className="col-sm-3">
-                    <input ref="cvc" onChange={this.onChangeCVC.bind(this)} type="text" className="form-control" name="cvc" id="cvc" placeholder="Security Code" />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <div className="col-sm-offset-3 col-sm-9">
-                    <button type="button" className="btn btn-success">Pay Now</button>
-                  </div>
-                </div>
-              </fieldset>
-            </form>*/}
 
 
           </div>
